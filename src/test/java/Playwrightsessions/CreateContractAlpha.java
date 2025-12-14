@@ -2,6 +2,9 @@ package Playwrightsessions;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.*;
+
+import java.nio.file.Paths;
+
 import static Playwrightsessions.CreateContractQA.clickNext;
 import static Playwrightsessions.CreateContractQA.waitForSpinner;
 
@@ -14,6 +17,13 @@ public class CreateContractAlpha {
                     .setHeadless(false));
 
             BrowserContext context = browser.newContext();
+
+            // Start tracing before creating / navigating a page.
+            context.tracing().start(new Tracing.StartOptions()
+                    .setScreenshots(true)
+                    .setSnapshots(true)
+                    .setSources(true));
+
             Page page = context.newPage();
 
             // ============================
@@ -46,7 +56,7 @@ public class CreateContractAlpha {
             // VEHICLE DETAILS ENTRY
             // ============================
             page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Enter VIN Number"))
-                    .fill("1N6AA1ED1LN500025");
+                    .fill("1N6AA1ED1LN500024");
 
             page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Enter Sale Odometer"))
                     .fill("1,0000");
@@ -117,6 +127,10 @@ public class CreateContractAlpha {
             page.locator("#txt_last_name").click();
             page.locator("#txt_last_name").fill("cobuyerLn");
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Next ")).click();clickNext(page);
+
+            // Stop tracing and export it into a zip archive.
+            context.tracing().stop(new Tracing.StopOptions()
+                    .setPath(Paths.get("trace.zip")));
 
           /*  Locator visibleNextButtons = page.locator("button:has-text('Next') >> visible=true");
 
